@@ -79,6 +79,7 @@ class App extends React.Component {
     return (
       <div>
         <h1>Props v. State</h1>
+        <button onClick={()=> this.setState({ activeTabIndex: 2 }) }>Select step 3</button>
         <Tabs 
           ref="tabs" 
           data={this.props.tabs} 
