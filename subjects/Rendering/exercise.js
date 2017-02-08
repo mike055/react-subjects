@@ -28,14 +28,44 @@ const DATA = {
   ]
 }
 
+let foodType = 'english';
+const updateFoodType = (event) => {
+  foodType = event.target.value;
+  updateThePage();
+}
+
+let sortAscending = false;
+const toggleSortOrder = () => {
+  sortAscending = !sortAscending;
+  updateThePage();
+}
+
 function Menu() {
+
+  const items = DATA.items
+    .filter( item => item.type === foodType)
+    .sort(sortBy( sortAscending ? 'name' : '-name' ))
+    .map( item => <li key={item.id}>{item.name}</li>);
+
   return (
     <div>
       Open the console, you have failing tests.
+      <h1>{DATA.title}</h1>
+      <select onChange={updateFoodType}>
+        <option>english</option>
+        <option>mexican</option>
+      </select>
+      <button onClick={toggleSortOrder}>Toggle order</button>
+      <ul>
+        {items}
+      </ul>
     </div>
   )
 }
 
-ReactDOM.render(<Menu/>, document.getElementById('app'), () => {
-  require('./tests').run()
-})
+const updateThePage = () => {
+  ReactDOM.render(<Menu/>, document.getElementById('app'), () => {
+    //require('./tests').run()
+  })
+};
+updateThePage();
