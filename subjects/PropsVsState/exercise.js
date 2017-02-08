@@ -25,17 +25,15 @@ class Tabs extends React.Component {
     data: React.PropTypes.array.isRequired
   }
 
-  state = {
-    activeTabIndex: 0
-  }
-
   handleTabClick(activeTabIndex) {
-    this.setState({ activeTabIndex })
+    if(this.props.onTabIndexChange) {
+      this.props.onTabIndexChange(activeTabIndex)
+    }
   }
 
   renderTabs() {
     return this.props.data.map((tab, index) => {
-      const style = this.state.activeTabIndex === index ?
+      const style = this.props.activeTabIndex === index ?
         styles.activeTab : styles.tab
       return (
         <div
@@ -49,7 +47,7 @@ class Tabs extends React.Component {
   }
 
   renderPanel() {
-    const tab = this.props.data[this.state.activeTabIndex]
+    const tab = this.props.data[this.props.activeTabIndex]
     return (
       <div>
         <p>{tab.description}</p>
@@ -72,11 +70,21 @@ class Tabs extends React.Component {
 }
 
 class App extends React.Component {
+  
+  state = {
+    activeTabIndex: 0
+  }
+
   render() {
     return (
       <div>
         <h1>Props v. State</h1>
-        <Tabs ref="tabs" data={this.props.tabs}/>
+        <Tabs 
+          ref="tabs" 
+          data={this.props.tabs} 
+          activeTabIndex={this.state.activeTabIndex} 
+          onTabIndexChange={activeTabIndex => this.setState({ activeTabIndex })}
+        />
       </div>
     )
   }
