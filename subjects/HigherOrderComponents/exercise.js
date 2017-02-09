@@ -34,6 +34,7 @@ const withMousePosition = (Component) => {
     render() {
       const {x,y} = this.state;
 
+      //could do the same by wrapping component in a div with a onMouseMove
       return <Component {...this.props} mouse={ {x, y} } />
     }
   }
