@@ -37,6 +37,19 @@ class CheckoutForm extends React.Component {
     console.log(values)
   }
 
+  componentWillMount() {
+    if(localStorage.formState) {
+      this.setState(JSON.parse(localStorage.formState));
+      localStorage.formState = null;
+    }
+  }
+
+  componentDidMount() {
+    window.addEventListener('beforeunload', () => {
+      localStorage.formState = JSON.stringify(this.state)
+    })
+  }
+
   render() {
     const {
       useBillingDetails,
