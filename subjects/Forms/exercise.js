@@ -26,64 +26,7 @@ class CheckoutForm extends React.Component {
     billingState: 'VI',
     shippingName: '',
     shippingState: '',
-    previousShippingName: '',
-    previousShippingState: '',
     useBillingDetails: false
-  }
-
-  onBillingNameChange = (event) => {
-    this.setState({billingName: event.target.value}, ()=> {
-      this.keepShippingFieldsInSync();
-    });
-    
-  }
-
-  onBillingStateChange = (event) => {
-    this.setState({billingState: event.target.value}, ()=> {
-      this.keepShippingFieldsInSync();
-    });
-  }
-
-  onShippingNameChange = (event) => {
-    if(!this.state.useBillingDetails) {
-      this.setState({shippingName: event.target.value});
-    }
-  }
-
-  onShippingStateChange = (event) => {
-    if(!this.state.useBillingDetails) {
-      this.setState({shippingState: event.target.value});
-    }
-  }
-
-  handleCheckboxChange = (event) => {
-    this.setState({ useBillingDetails: event.target.checked }, () => {
-      if(this.state.useBillingDetails) {
-        this.setState({
-          previousShippingName: this.state.shippingName,
-          previousShippingState: this.state.shippingState
-        }, ()=> {
-          this.keepShippingFieldsInSync()
-        });
-        
-      }
-      else {
-        this.setState({
-          shippingName: this.state.previousShippingName,
-          shippingState: this.state.previousShippingState
-        });
-      }
-      
-    })
-  }
-
-  keepShippingFieldsInSync = () => {
-    if(this.state.useBillingDetails) {
-      this.setState({
-        shippingName: this.state.billingName,
-        shippingState: this.state.billingState
-      });
-    }
   }
 
   handleSubmit = (event) => {
@@ -95,9 +38,18 @@ class CheckoutForm extends React.Component {
   }
 
   render() {
+    const {
+      useBillingDetails,
+      billingName,
+      shippingName,
+      billingState,
+      shippingState
+    } = this.state;
 
     const showBillingStateLengthError = this.state.billingState.length > 2;
-    const showShippingStateLengthError = this.state.shippingState.length > 2;
+    const showShippingStateLengthError = 
+      useBillingDetails && this.state.billingState.length > 2 ||
+      !useBillingDetails && this.state.shippingState.length > 2;      ;
 
     return (
       <div>
@@ -111,8 +63,8 @@ class CheckoutForm extends React.Component {
                 <input 
                   type="text"
                   name="billingName"
-                  defaultValue={this.state.billingName}
-                  onChange={this.onBillingNameChange}
+                  defaultValue={billingName}
+                  onChange={event => this.setState({billingName: event.target.value })}
                 />
               </label>
             </p>
@@ -122,8 +74,8 @@ class CheckoutForm extends React.Component {
                   type="text" 
                   size="2"
                   name="billingState"
-                  defaultValue={this.state.billingState}
-                  onChange={this.onBillingStateChange}
+                  defaultValue={billingState}
+                  onChange={event => this.setState({billingState: event.target.value })}
                 />
               </label>
               {
@@ -136,7 +88,7 @@ class CheckoutForm extends React.Component {
 
           <fieldset>
             <label>
-              <input type="checkbox" onChange={this.handleCheckboxChange} /> 
+              <input type="checkbox" onChange={event => this.setState({useBillingDetails: event.target.checked })} /> 
               Same as billing
             </label>
             <legend>Shipping Address</legend>
@@ -145,8 +97,9 @@ class CheckoutForm extends React.Component {
                 <input 
                   type="text" 
                   name="shippingName"
-                  value={this.state.shippingName}
-                  onChange={this.onShippingNameChange}
+                  readOnly={useBillingDetails}
+                  value={useBillingDetails ? billingName : shippingName}
+                  onChange={event => this.setState({shippingName: event.target.value })}
                 />
               </label>
             </p>
@@ -156,8 +109,9 @@ class CheckoutForm extends React.Component {
                   type="text" 
                   size="2" 
                   name="shippingState"
-                  value={this.state.shippingState}
-                  onChange={this.onShippingStateChange}
+                  readOnly={useBillingDetails}
+                  value={useBillingDetails ? billingState : shippingState}
+                  onChange={event => this.setState({shippingState: event.target.value })}
                 />
               </label>
               {
