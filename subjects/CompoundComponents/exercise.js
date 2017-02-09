@@ -34,11 +34,28 @@ import ReactDOM from 'react-dom'
 
 class RadioGroup extends React.Component {
   static propTypes = {
-    defaultValue: PropTypes.string
+    value: PropTypes.string
+  }
+
+  select(value) {
+    this.props.onChange(value)
   }
 
   render() {
-    return <div>{this.props.children}</div>
+
+    const c = React.Children.map(this.props.children, item => {
+
+      return React.cloneElement(item, {
+        onValueSelected: () => { this.select(item.props.value) },
+        isSelected: this.props.value === item.props.value
+      })
+    })
+
+    return (
+      <div>
+        <div>{c}</div>
+      </div>
+    )
   }
 }
 
@@ -49,8 +66,8 @@ class RadioOption extends React.Component {
 
   render() {
     return (
-      <div>
-        <RadioIcon isSelected={false}/> {this.props.children}
+      <div onClick={()=>  this.props.onValueSelected()}>
+        <RadioIcon isSelected={this.props.isSelected} /> {this.props.children}
       </div>
     )
   }
@@ -80,17 +97,33 @@ class RadioIcon extends React.Component {
 }
 
 class App extends React.Component {
+  
+  state = {
+    radioValue: "fm"
+  }
+
+  setRadioButtonValueToAux= () => {
+    this.setState({ radioValue: "aux" })
+  }
+
   render() {
+   
+
     return (
       <div>
         <h1>♬ It's about time that we all turned off the radio ♫</h1>
-
-        <RadioGroup defaultValue="fm">
+        <h2>Radio Value: {this.state.radioValue}</h2>
+        <RadioGroup 
+          value={this.state.radioValue} 
+          onChange={(radioValue) => this.setState({ radioValue })}
+        >
           <RadioOption value="am">AM</RadioOption>
           <RadioOption value="fm">FM</RadioOption>
           <RadioOption value="tape">Tape</RadioOption>
           <RadioOption value="aux">Aux</RadioOption>
         </RadioGroup>
+
+        <button onClick={() => this.setRadioButtonValueToAux()}>Set value to AUX</button>
       </div>
     )
   }
