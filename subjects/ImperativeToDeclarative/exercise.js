@@ -12,15 +12,36 @@ import 'bootstrap-webpack'
 class Modal extends React.Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
-    children: PropTypes.node
+    children: PropTypes.node,
+    isOpen: PropTypes.bool.isRequired
   }
 
-  open() {
-    $(this.node).modal('show')
+  componentDidMount() {
+    this.doImperativeWork();
+    
+    // This is only necessary to sync the state back up to
+    // the parent when the user clicks on the overlay.
+    $(this.node).on('hidden.bs.modal', () => {
+      if (this.props.onClose)
+        this.props.onClose()
+    })
+
+
   }
 
-  close() {
-    $(this.node).modal('hide')
+  componentDidUpdate (prevProps) {
+    if (prevProps.isOpen !== this.props.isOpen) {
+      this.doImperativeWork();
+    }
+  }
+
+  doImperativeWork() {
+    if(this.props.isOpen) {
+     $(this.node).modal('show')
+    }
+    else {
+      $(this.node).modal('hide')
+    }
   }
 
   render() {
@@ -42,12 +63,16 @@ class Modal extends React.Component {
 }
 
 class App extends React.Component {
+  state = {
+    isOpen: false
+  }
+
   openModal = () => {
-    this.modal.open()
+    this.setState({ isOpen: true })
   }
 
   closeModal = () => {
-    this.modal.close()
+    this.setState({ isOpen: false })
   }
 
   render() {
@@ -55,12 +80,18 @@ class App extends React.Component {
       <div className="container">
         <h1>Let’s make bootstrap modal declarative</h1>
 
+        <pre>{JSON.stringify(this.state, null, 2)}</pre>
+
         <button
           className="btn btn-primary"
           onClick={this.openModal}
         >open modal</button>
 
-        <Modal title="Declarative is better" ref={modal => this.modal = modal}>
+        <Modal 
+          title="Declarative is better" 
+          isOpen={this.state.isOpen}
+          onClose={this.closeModal}
+        >
           <p>Calling methods on instances is a FLOW not a STOCK!</p>
           <p>It’s the dynamic process, not the static program in text space.</p>
           <p>You have to experience it over time, rather than in snapshots of state.</p>
