@@ -9,7 +9,34 @@ import React, { PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 
 const withMousePosition = (Component) => {
-  return Component
+  return class extends React.Component {
+
+    state= {
+      x: 0,
+      y: 0
+    }
+
+    listenToMouseEvent = (event) => {
+      this.setState({
+          x: event.clientX,
+          y: event.clientY
+        });
+    }
+
+    componentDidMount() {
+      window.addEventListener('mousemove', this.listenToMouseEvent);
+    }
+
+    componentWillUnmount() {
+      window.removeEventListener('mousemove', this.listenToMouseEvent);
+    }
+
+    render() {
+      const {x,y} = this.state;
+
+      return <Component {...this.props} mouse={ {x, y} } />
+    }
+  }
 }
 
 class App extends React.Component {
