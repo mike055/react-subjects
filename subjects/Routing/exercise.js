@@ -45,7 +45,9 @@ function getUserByID(id) {
 class Home extends React.Component {
   render() {
     const contactItems = USERS.map(user => (
-      <li key={user.email}>{user.name}</li>
+      <li key={user.email}>
+        <Link to={`/user/${user.id}`}>{user.name}</Link>
+      </li>
     ))
 
     return (
@@ -59,7 +61,7 @@ class Home extends React.Component {
 
 class Profile extends React.Component {
   render() {
-    const { userId } = 1 // TODO: Get this from the URL!
+    const { userId } = this.props.match.params; // TODO: Get this from the URL!
     const user = getUserByID(userId)
 
     if (user == null)
@@ -68,6 +70,7 @@ class Profile extends React.Component {
     return (
       <div className="profile">
         <Gravatar email={user.email}/> {user.name}
+        <p><Link to="/">Go home</Link></p>
       </div>
     )
   }
@@ -87,10 +90,17 @@ class NoMatch extends React.Component {
 class App extends React.Component {
   render() {
     return (
-      <div>
-        <h1>People Viewer</h1>
-        <Home/>
-      </div>
+      <Router>
+        <div>
+          <h1>People Viewer</h1>
+          <Route exact path="/" component={Home}/>
+          <Route exact path="/profile/:userId" component={Profile}/>
+          <Route exact path="/user/:userId"  render={(props) => (
+              <Redirect to={`/profile/${props.match.params.userId}`}/>
+          )}/>
+          <Route exact path="/:badstuff" component={NoMatch}/>
+        </div>
+      </Router>
     )
   }
 }
