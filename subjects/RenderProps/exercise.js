@@ -22,7 +22,34 @@ import ReactDOM from 'react-dom'
 import LoadingDots from './utils/LoadingDots'
 import getAddressFromCoords from './utils/getAddressFromCoords'
 
-class App extends React.Component {
+class GeoAddress extends React.Component {
+
+  state = {
+    address: null
+  };
+
+  componentDidMount() {
+    this.doImperativeWork();
+  }
+
+  componentDidUpdate() {
+    this.doImperativeWork();
+  }
+
+  doImperativeWork= () => {
+    const {latitude, longitude} = this.props;
+
+    getAddressFromCoords(latitude, longitude).then((address) => {
+      this.setState({address});
+    });
+  }
+
+  render() {
+    return this.props.children(this.state.address)
+  }
+}
+
+class GeoPosition extends React.Component {
   state = {
     coords: {
       latitude: null,
@@ -52,19 +79,44 @@ class App extends React.Component {
   }
 
   render() {
+    return this.props.children(this.state);
+  }
+}
+
+class App extends React.Component {
+  
+  render() {
     return (
       <div>
         <h1>Geolocation</h1>
-        {this.state.error ? (
-          <div>Error: {this.state.error.message}</div>
-        ) : (
-          <dl>
-            <dt>Latitude</dt>
-            <dd>{this.state.coords.latitude || <LoadingDots/>}</dd>
-            <dt>Longitude</dt>
-            <dd>{this.state.coords.longitude || <LoadingDots/>}</dd>
-          </dl>
-        )}
+        <GeoPosition>
+          {
+            (geoPos) => (
+              geoPos.error ? (
+              <div>Error: {geoPos.message}</div>
+              ) : (
+              <div>
+                <dl>
+                  <dt>Latitude</dt>
+                  <dd>{geoPos.coords.latitude || <LoadingDots/>}</dd>
+                  <dt>Longitude</dt>
+                  <dd>{geoPos.coords.longitude || <LoadingDots/>}</dd>
+                </dl>
+                <GeoAddress latitude={geoPos.coords.latitude} longitude={geoPos.coords.longitude}>
+                  {
+                  (address) => (
+                    address ? (
+                      <p>Your address is: {address}</p>
+                      ) : (
+                        <p>Cannot find your address</p>
+                      )
+                    )
+                  }
+                </GeoAddress>
+              </div>
+            ))
+          }
+        </GeoPosition>
       </div>
     )
   }
